@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
@@ -23,7 +24,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s := grpc.NewServer()
+	creds, err := credentials.NewServerTLSFromFile("certs/localhost.pem", "certs/localhost-key.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	opts := []grpc.ServerOption{grpc.Creds(creds)}
+	s := grpc.NewServer(opts...)
 	pb.RegisterEmployeeServiceServer(s, new(employeeService))
 
 	log.Println("Starting server on port " + port)

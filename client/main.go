@@ -10,6 +10,7 @@ import (
 
 	"github.com/dragonator/grpc-golang/internal/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -19,7 +20,12 @@ func main() {
 	option := flag.Int("o", 1, "Command to run")
 	flag.Parse()
 
-	opts := []grpc.DialOption{grpc.WithInsecure()}
+	creds, err := credentials.NewClientTLSFromFile("certs/localhost.pem", "")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 	conn, err := grpc.Dial("localhost"+port, opts...)
 	if err != nil {
 		log.Fatal(err)
